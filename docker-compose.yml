@@ -1,0 +1,21 @@
+version: '3'
+networks:
+  gocrud_network:
+    driver: bridge
+
+services:
+  database:
+    build:
+      context: ./
+      dockerfile: docker/database.dockerfile
+    image: gocrud_mysql
+    networks:
+      - gocrud_network
+    container_name: gocrud_mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: "@@@udanup"
+        MYSQL_DATABASE: gocrud_db
+    volumes:
+      - /opt/docker_gocrud_mysql_data:/var/lib/mysql
+    ports:
+      - "3309:3306"
