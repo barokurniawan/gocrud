@@ -9,5 +9,5 @@ Clone repo ini, ketik perintah `dep ensure` kemudian jalan kan dengan `go run ma
 gocrud membutuhkan mysql sebagai database, file sql sudah tersedia di repo. 
 
 Jika kamu menggunakan docker, cukup clone repo ini kemudian `docker-compose up` tapi docker disini hanya menjalankan 
-container mysql saja, jadi untuk bisa unjalankan nya harus dengan perintah `go run main.go`
+container mysql saja, jadi untuk bisa menjalankan gocrud nya harus dengan perintah `go run main.go`
 
