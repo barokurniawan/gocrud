@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"path"
 	"strconv"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/barokurniawan/gocrud/model"
 	"github.com/barokurniawan/gocrud/service"
+	"github.com/barokurniawan/gocrud/sys"
 )
 
 type Guestbook struct {
@@ -30,27 +30,46 @@ func (gb Guestbook) Route() {
 	gb.rsp.RegisterRoute("/api/list-message", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		list, err := gb.model.AdvanceShowList()
 		if err != nil {
+			res := sys.Response{
+				Info:    false,
+				Message: err.Error(),
+			}
+
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			w.Write(res.Parse())
 			return
 		}
 
 		byteJson, err := json.Marshal(list)
 		if err != nil {
+			res := sys.Response{
+				Info:    false,
+				Message: err.Error(),
+			}
+
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			w.Write(res.Parse())
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		w.Write(byteJson)
 	}))
 
 	gb.rsp.RegisterRoute("/api/create-message", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
 		err := req.ParseForm()
 		if err != nil {
-			fmt.Fprint(w, false)
+			res := sys.Response{
+				Info:    false,
+				Message: err.Error(),
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(res.Parse())
 			return
 		}
 
@@ -60,33 +79,63 @@ func (gb Guestbook) Route() {
 
 		_, err = gb.model.CreateNew(Name, Message, CreatedAT)
 		if err != nil {
-			fmt.Fprint(w, false)
+			res := sys.Response{
+				Info:    false,
+				Message: err.Error(),
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(res.Parse())
 			return
 		}
 
-		fmt.Fprint(w, true)
+		res := sys.Response{
+			Info:    true,
+			Message: "",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(res.Parse())
 	}))
 
 	gb.rsp.RegisterRoute("/api/delete-message", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		var query = req.URL.Query()
 		id, err := strconv.Atoi(query.Get("id"))
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			res := sys.Response{
+				Info:    false,
+				Message: err.Error(),
+			}
+
 			w.Header().Set("Content-Type", "application/json")
-			fmt.Fprint(w, err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(res.Parse())
 			return
 		}
 
 		_, err = gb.model.Delete(int64(id))
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			res := sys.Response{
+				Info:    false,
+				Message: err.Error(),
+			}
+
 			w.Header().Set("Content-Type", "application/json")
-			fmt.Fprint(w, err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(res.Parse())
 			return
 		}
 
+		res := sys.Response{
+			Info:    true,
+			Message: "",
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, true)
+		w.WriteHeader(http.StatusOK)
+		w.Write(res.Parse())
 	}))
 
 	gb.rsp.RegisterRoute("/", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
