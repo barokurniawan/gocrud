@@ -8,6 +8,8 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/barokurniawan/gocrud/entity"
+
 	"github.com/barokurniawan/gocrud/model"
 	"github.com/barokurniawan/gocrud/service"
 	"github.com/barokurniawan/gocrud/sys"
@@ -130,6 +132,62 @@ func (gb Guestbook) Route() {
 
 		res := sys.Response{
 			Info:    true,
+			Message: "",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(res.Parse())
+	}))
+
+	gb.rsp.RegisterRoute("/api/update-message", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodPost {
+			res := sys.Response{
+				Info:    false,
+				Message: "Invalid Method",
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(res.Parse())
+			return
+		}
+
+		i, err := strconv.Atoi(req.FormValue("id"))
+		id := int64(i)
+		if err != nil {
+			res := sys.Response{
+				Info:    false,
+				Message: "Invalid ID",
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(res.Parse())
+			return
+		}
+
+		item := entity.Guestbook{
+			ID:      id,
+			Name:    req.FormValue("name"),
+			Message: req.FormValue("message"),
+		}
+
+		info, err := gb.model.Update(id, item)
+		if err != nil {
+			res := sys.Response{
+				Info:    false,
+				Message: "Invalid ID",
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(res.Parse())
+			return
+		}
+
+		res := sys.Response{
+			Info:    info,
 			Message: "",
 		}
 

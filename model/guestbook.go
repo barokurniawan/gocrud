@@ -3,11 +3,9 @@ package model
 import (
 	"time"
 
-	"github.com/go-sql-driver/mysql"
-
 	"github.com/barokurniawan/gocrud/entity"
-
 	"github.com/barokurniawan/gocrud/sys"
+	"github.com/go-sql-driver/mysql"
 )
 
 type Guestbook struct {
@@ -41,6 +39,21 @@ func (gb *Guestbook) CreateNew(Name string, Message string, created_at time.Time
 	}
 
 	_, err = stmt.Exec(Name, Message, created_at)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (gb *Guestbook) Update(ID int64, item entity.Guestbook) (bool, error) {
+	conn := gb.db.Connection
+	stmt, err := conn.Prepare("update guestbook set Name = ?, Message = ? where id = ?")
+	if err != nil {
+		return false, err
+	}
+
+	_, err = stmt.Exec(item.Name, item.Message, item.ID)
 	if err != nil {
 		return false, err
 	}
