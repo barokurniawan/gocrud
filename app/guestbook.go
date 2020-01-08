@@ -20,6 +20,16 @@ type Guestbook struct {
 	model *model.Guestbook
 }
 
+func NewGuestbookApp(rsp *service.RouteServiceProvider, model *model.Guestbook) *Guestbook {
+	var gb = &Guestbook{
+		rsp:   rsp,
+		model: model,
+	}
+
+	gb.Route()
+	return gb
+}
+
 func (gb *Guestbook) SetModel(model *model.Guestbook) {
 	gb.model = model
 }

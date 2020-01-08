@@ -20,15 +20,12 @@ func main() {
 	flag.Parse()
 
 	router := mux.NewRouter()
-	routeServiceProvider := new(service.RouteServiceProvider)
-	ServiceInitiator := new(service.InitService)
-	srv := ServiceInitiator.Init()
-	routeServiceProvider.SetRouter(router)
+	db := service.NewDatabase()
+	guestbookModel := service.NewGuestbook(db)
+	serviceInititator := service.NewInitService(db, guestbookModel)
+	routeServiceProvider := service.NewRouteServiceProvider(router)
 
-	guestbook := new(app.Guestbook)
-	guestbook.SetRouteService(routeServiceProvider)
-	guestbook.SetModel(srv.GB)
-	guestbook.Route()
+	app.NewGuestbookApp(routeServiceProvider, serviceInititator.GB)
 
 	router.PathPrefix("/js/").
 		Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("./assets/"))))
@@ -56,8 +53,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 
 	defer cancel()
-	defer srv.DB.Connection.Close()
-	server.Shutdown(ctx)
+	defer serviceInititator.DB.Connection.Close()
 	log.Println("shutting down")
+	server.Shutdown(ctx)
 	os.Exit(0)
 }

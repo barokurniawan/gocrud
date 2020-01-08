@@ -17,6 +17,12 @@ type RouteServiceProvider struct {
 	Register []RouteRegister
 }
 
+func NewRouteServiceProvider(router *mux.Router) *RouteServiceProvider {
+	return &RouteServiceProvider{
+		Router: router,
+	}
+}
+
 func (routeServiceProvider *RouteServiceProvider) SetRouter(router *mux.Router) {
 	routeServiceProvider.Router = router
 }

@@ -11,14 +11,11 @@ type InitService struct {
 	GB *model.Guestbook
 }
 
-func (i *InitService) Init() *InitService {
-	DB := NewDatabase()
-	i.DB = DB
-
-	GB := NewGuestbook(DB)
-	i.GB = GB
-
-	return i
+func NewInitService(DB *sys.Database, GB *model.Guestbook) *InitService {
+	return &InitService{
+		DB: DB,
+		GB: GB,
+	}
 }
 
 func NewDatabase() *sys.Database {
